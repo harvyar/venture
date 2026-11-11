@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VENTURE — Coffee Shop Tycoon</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap');
+:root{--bg:#edf0e9;--panel:#fffefa;--ink:#26342c;--muted:#7d887f;--line:#e5e9e1;--green:#315b43;--green2:#e5eee5;--gold:#d39b4a;--red:#b65b50;--shadow:0 10px 28px #25372b12}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px 'DM Sans',sans-serif}
+button{font:inherit;cursor:pointer;border:0;border-radius:11px;padding:10px 13px;background:#edf2eb;color:var(--green);font-weight:700;transition:.16s}
+button:hover{filter:brightness(.97);transform:translateY(-1px)}button.primary{background:var(--green);color:white}button.dark{background:#263a2d;color:#fff}button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.top{height:68px;background:#fbfcf8;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:16px}
+.brand{font:800 21px Manrope;letter-spacing:2px}.brand span{color:#9aa99b}.sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;font-weight:700}
+.topright{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.pill{background:#f0f3ed;border:1px solid var(--line);padding:8px 11px;border-radius:10px;font-weight:700;font-size:12px}.pill b{font-size:14px;margin-left:5px}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;padding:16px;max-width:1600px;margin:auto}
+.main{min-width:0}.scene-wrap{background:#dfe7dc;border:1px solid #d5ded3;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);position:relative}
+.scene-head{height:57px;padding:0 17px;display:flex;align-items:center;justify-content:space-between;background:#f9fbf6;border-bottom:1px solid #dce4d9}
+.scene-title{font:800 14px Manrope;letter-spacing:.4px}.scene-sub{font-size:11px;color:var(--muted);margin-top:2px}
+#scene{height:min(66vh,650px);min-height:410px;position:relative}#scene canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;bottom:12px;left:14px;background:#fffefaeb;border:1px solid #ffffff;border-radius:9px;padding:7px 10px;color:#66736a;font-size:11px;pointer-events:none}
+.scene-actions{display:flex;gap:7px}.scene-actions button{padding:8px 10px;font-size:11px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:13px}
+.kpi,.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}
+.kpi{padding:13px 14px}.kpi label{display:block;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase}.kpi strong{display:block;font:800 21px Manrope;margin-top:5px}.kpi small{color:var(--muted);font-size:11px}
+.side{display:flex;flex-direction:column;gap:12px}.panel{padding:15px}.panel h3{font:800 13px Manrope;margin:0 0 12px;letter-spacing:.4px;display:flex;justify-content:space-between;align-items:center}.panel h3 span{font:600 10px 'DM Sans';color:var(--muted);letter-spacing:0}
+.statline{display:flex;justify-content:space-between;gap:8px;margin:9px 0;font-size:12px}.statline span:first-child{color:var(--muted)}.bar{height:7px;background:#edf0eb;border-radius:20px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:#83a78a;border-radius:20px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{font-size:11px;padding:10px 8px}
+.inventory{display:grid;grid-template-columns:1fr 1fr;gap:7px}.stock{background:#f5f7f2;border-radius:10px;padding:9px}.stock small{display:block;color:var(--muted);font-size:10px}.stock b{font-size:14px}
+.menu-list{display:flex;flex-direction:column;gap:8px}.menu-item{display:flex;justify-content:space-between;align-items:center;font-size:11px}.menu-item span{color:var(--muted)}.toggle{width:34px;height:19px;border-radius:20px;background:#cbd2ca;position:relative;padding:0}.toggle:after{content:"";position:absolute;left:3px;top:3px;width:13px;height:13px;border-radius:50%;background:white;transition:.2s}.toggle.on{background:var(--green)}.toggle.on:after{left:18px}
+.log{height:115px;overflow:auto;font-size:11px;color:#69756c;line-height:1.6}.log div{border-bottom:1px solid #f0f2ed;padding:4px 0}.log b{color:var(--ink)}
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:11px;color:var(--muted);font-size:10px}
+.modal-bg{position:fixed;inset:0;background:#17251dcc;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.modal-bg.show{display:flex}.modal{background:#fffefa;border-radius:18px;padding:20px;width:min(440px,100%);box-shadow:0 24px 80px #0004}.modal h2{font:800 20px Manrope;margin:0 0 5px}.modal p{color:var(--muted);font-size:12px;margin:0 0 16px}.modalrow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.modalfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;background:#263a2d;color:white;padding:11px 16px;border-radius:11px;font-size:12px;z-index:8;transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.side .wide{grid-column:1/-1}#scene{height:58vh}}
+@media(max-width:620px){.top{height:auto;padding:12px;align-items:flex-start;flex-direction:column}.topright{width:100%}.app{padding:9px;gap:10px}.side{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}#scene{min-height:360px;height:52vh}.scene-head{padding:0 10px}.scene-actions button{padding:7px}.pill{padding:6px 8px}}
+.payment-pop{animation:payPop .55s ease}.drink-action{animation:brewPulse .7s ease}.taskdone{background:#e5eee5!important;color:#315b43!important}@keyframes payPop{0%{transform:scale(.85);opacity:.2}65%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}@keyframes brewPulse{0%{transform:translateY(8px) scale(.96);opacity:.3}100%{transform:translateY(0) scale(1);opacity:1}}.low{background:#fbeceb!important}.low b,.bad{color:var(--red)}.good{color:var(--green)}.stock{min-width:0}
+/* immersive interaction layer */
+#scene.interacting{cursor:crosshair}.scene-badge{position:absolute;top:12px;left:14px;background:#263a2de8;color:#fff;padding:8px 12px;border-radius:10px;font-size:11px;z-index:2;pointer-events:none}.action-prompt{background:#f2f6ef;border:1px solid #dfe8dc;border-radius:12px;padding:12px;margin:12px 0}.action-prompt b{display:block;margin-bottom:4px}.action-prompt small{color:#748176}.pay-visual{height:120px;display:flex;align-items:center;justify-content:center;gap:20px;background:#edf3eb;border-radius:14px;margin:12px 0;overflow:hidden}.pay-visual .phone,.pay-visual .terminal,.pay-visual .card{font-size:38px;position:relative}.pay-visual.scan .beam{position:absolute;width:54px;height:3px;background:#42a66b;box-shadow:0 0 12px #42a66b;animation:scan 1s linear infinite}.pay-visual.swipe .card{animation:swipe .9s ease-in-out infinite alternate}.pay-visual.cash .card{animation:cash .7s ease-in-out infinite alternate}@keyframes scan{from{transform:translateY(-35px)}to{transform:translateY(35px)}}@keyframes swipe{to{transform:translateX(35px) rotate(-8deg)}}@keyframes cash{to{transform:translateY(-10px) rotate(12deg)}}
+#scene.interacting canvas{cursor:crosshair}
+.modal.wide{width:min(1000px,100%);max-height:88vh;overflow:auto}.mh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.tb{width:100%;border-collapse:collapse;font-size:12px}.tb th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:1px;padding:6px;border-bottom:1px solid var(--line);position:sticky;top:-20px;background:#fffefa;z-index:1}.tb td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}.tb .r{text-align:right;white-space:nowrap}.tb small{color:var(--muted);font-size:10px}.tb button{padding:6px 8px;font-size:11px}.tb button.toggle{padding:0}.lock{opacity:.6}
+.num,#cfn,select{font:inherit;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff;width:110px}#cfn{width:190px}
+.cf{margin-top:14px;padding:14px;background:#f5f7f2;border-radius:14px}.cf h3{margin:0 0 6px;font:800 13px Manrope}.cf .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}.cf select{width:auto}.qg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.qg label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}.qg .num{width:100%}
+.sl,.ck{display:block;margin:12px 0;font-size:12px}.sl b{float:right}.sl input[type=range]{width:100%}.sl select{float:right}.set h4{margin:18px 0 0;font:800 12px Manrope;letter-spacing:1px;color:var(--green)}
+#dlg{display:none;position:absolute;right:14px;bottom:14px;width:min(340px,calc(100% - 28px));background:#fffefaf5;border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px #0003;padding:14px;z-index:4}
+#dlg .who{display:flex;justify-content:space-between;align-items:center;font:800 14px Manrope}#dlg .chips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}#dlg .chips span{background:#f0f3ed;border-radius:8px;padding:3px 7px;font-size:10px;font-weight:700}
+#dlg .say{background:#eef3ea;border-radius:12px;padding:10px;font-size:13px;margin:8px 0;min-height:44px}#dlg .opts{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto}#dlg .opts button{text-align:left;font-size:12px;padding:8px 10px}#dlg .opts small{display:block;font-weight:500;color:var(--muted);font-size:10px}
+.topright button:not(.primary){padding:8px 11px;font-size:11px}
+
+/* POS tablet hardware + touch-first checkout */
+.modal.wide{width:min(560px,100%);padding:13px;background:#d9ded8;border:1px solid #aeb8ad;border-radius:25px}
+.pos-device{background:linear-gradient(145deg,#202b27,#101815);padding:10px;border-radius:22px;box-shadow:inset 0 1px 2px #ffffff55,0 18px 45px #0004}
+.pos-top{height:22px;color:#d8e2d9;display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:1.2px;padding:0 8px}
+.pos-camera{width:6px;height:6px;border-radius:50%;background:#59746a;box-shadow:0 0 5px #80c79a}
+.pos-status{color:#9bd1a6}.pos-screen{background:#f7f9f4;border-radius:13px;min-height:390px;padding:18px;color:#24352b;box-shadow:inset 0 0 0 1px #fff}
+.pos-home{width:54px;height:4px;background:#65736b;border-radius:8px;margin:9px auto 1px}
+.pos-heading{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e0e7dd;padding-bottom:12px;margin-bottom:14px}.pos-heading h2{font:800 18px Manrope;margin:4px 0}.pos-heading small,.pos-customer small,.pos-ticket>small{font-size:9px;letter-spacing:1.2px;color:#7b8b7d;font-weight:800}.pos-heading p,.pos-help{font-size:11px;color:#778378;margin:4px 0 10px}.pos-heading button{background:#e9eee7;padding:7px 10px}
+.pos-section h3{font:800 14px Manrope;margin:10px 0 3px}.pos-list,.pos-menu{display:grid;gap:7px;max-height:310px;overflow:auto}
+.pos-choice,.pos-menu-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:white;border:1px solid #e1e8df;padding:10px;border-radius:12px;color:#263a2d}
+.pos-choice>span:nth-child(2),.pos-menu-item>span:nth-child(2){display:grid;gap:3px;flex:1}.pos-choice small,.pos-menu-item small{display:block;color:#829084;font-size:10px;font-weight:500}.pos-choice strong,.pos-menu-item strong{font-size:11px}
+.pos-choice.selected,.pos-menu-item.selected{border-color:#4b815b;background:#edf5ec;box-shadow:0 0 0 2px #4b815b22}
+.pos-avatar{width:36px;height:36px;border-radius:11px;background:#edf2eb;display:grid;place-items:center;font-size:18px}.pos-drink-icon{width:34px;height:34px;border-radius:10px;background:#f2f5ed;display:grid;place-items:center;font-size:18px}
+.pos-customer{display:flex;align-items:center;gap:9px;padding:9px;background:#edf3ea;border-radius:12px;margin-bottom:12px}.pos-customer>span:nth-child(2){display:grid;gap:3px;flex:1}.pos-customer button{padding:6px 9px;font-size:10px}.pos-tag{font-size:10px;color:#39734a;font-weight:800}
+.pos-ticket{background:#fff;border:1px dashed #b9c6b7;border-radius:12px;padding:14px;margin:12px 0}.pos-ticket-line,.pos-ticket-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0}.pos-ticket-total{border-top:1px solid #e5ebe2;font-size:11px}.pos-ticket-total b{font-size:18px;color:#315c40}
+.pos-primary{display:block;width:100%;background:#315b43;color:#fff;padding:13px;margin:9px 0;border-radius:11px}.pos-secondary{display:block;width:100%;background:#e9eee7;padding:10px}
+.pos-paymethods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pos-paymethods button{background:#fff;border:1px solid #dfe7dc;display:grid;justify-items:center;gap:5px;padding:14px 5px;font-size:23px}.pos-paymethods b{font-size:12px}.pos-paymethods small{font-size:9px;color:#78867a;font-weight:500}
+.pos-payment-scene{height:175px!important;gap:28px!important;background:#e7eee5!important}.qr-phone,.scanner,.terminal-machine{display:grid;justify-items:center;gap:4px;font-size:35px;position:relative}.qr-phone small,.scanner small,.terminal-machine small{font-size:9px;letter-spacing:1px;color:#68786b}.fake-qr{font-size:19px;line-height:1.05;background:white;padding:6px;border:3px solid #263a2d;border-radius:5px}
+.customer-card{width:165px;height:100px;background:linear-gradient(135deg,#315c46,#172b22);border-radius:11px;color:#fff;padding:12px;display:grid;gap:6px;font-size:23px;cursor:grab;touch-action:none;box-shadow:0 7px 12px #0003}.customer-card small{font-size:8px;letter-spacing:1px}.customer-card b{font-size:10px;letter-spacing:1px}.customer-card.dragging{cursor:grabbing;transform:translateX(35px) rotate(5deg);box-shadow:0 14px 22px #0004}
+.terminal-machine{background:#25362d;color:#d9e8db;padding:12px;border-radius:12px;width:100px;font-size:23px}.terminal-slot{width:78px;height:5px;background:#080e0b;border-radius:5px}.terminal-machine span{font-size:8px;letter-spacing:1px}.pos-swipe-track{text-align:center;color:#607362;font-size:10px;font-weight:800;letter-spacing:1px;padding:7px}
+.pos-success{text-align:center;padding:24px 5px}.success-check{width:58px;height:58px;margin:auto;border-radius:50%;display:grid;place-items:center;background:#dcefe0;color:#34724a;font-size:34px;font-weight:900}.pos-success h2{font:800 20px Manrope}.pos-success p{font-size:12px;color:#718074}
+.pos-empty{font-size:12px;color:#8a958b;text-align:center;padding:20px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div><div class="brand">VENTURE<span>.</span></div><div class="sub">BUSINESS SIMULATION / COFFEE DIVISION</div></div>
+  <div class="topright">
+    <div class="pill">DAY <b id="day">01</b></div>
+    <div class="pill">CASH <b id="cash">Rp 8.000.000</b></div>
+    <button id="posBtn" class="primary">📟 POS TABLET</button><button data-panel="market">🛒 MARKET</button><button data-panel="studio">☕ MENU STUDIO</button><button data-panel="set">⚙ SETTINGS</button><button class="primary" id="openBtn">OPEN BUSINESS</button>
+  </div>
+</header>
+<div class="app">
+ <main class="main">
+  <section class="scene-wrap">
+   <div class="scene-head">
+    <div><div class="scene-title">KOPI KECIL — FLAGSHIP STORE</div><div class="scene-sub">Your first location · South Jakarta</div></div>
+    <div class="scene-actions"><button id="rotateBtn">↻ ROTATE</button><button id="resetCam">⌖ RESET VIEW</button></div>
+   </div>
+   <div id="scene"><div class="hint">Click the glowing barista station to make drinks · Click waiting customer to checkout · Drag to rotate</div></div>
+   <div id="dlg"></div>
+  </section>
+  <div class="kpis">
+   <div class="kpi"><label>Today's revenue</label><strong id="revenue">Rp 0</strong><small id="orders">0 orders served</small></div>
+   <div class="kpi"><label>Daily profit</label><strong id="profit">Rp 0</strong><small>After ingredients &amp; fixed costs</small></div>
+   <div class="kpi"><label>Customers</label><strong id="customers">0</strong><small>Today's visitors</small></div>
+   <div class="kpi"><label>Reputation</label><strong id="reputation">52</strong><small id="repLabel">Building awareness</small></div>
+  </div>
+  <div class="footer"><span>PROTOTYPE 0.5 · ARTICULATED BARISTA</span><span>Autosaves in this browser</span></div>
+ </main>
+ <aside class="side">
+  <section class="panel">
+   <h3>BUSINESS HEALTH <span id="status">CLOSED</span></h3>
+   <div class="statline"><span>Customer satisfaction</span><b id="satisfaction">78%</b></div><div class="bar"><i id="satBar" style="width:78%"></i></div>
+   <div class="statline"><span>Staff workload</span><b id="workload">0%</b></div><div class="bar"><i id="workBar" style="width:0%"></i></div>
+   <div class="statline"><span>Brand awareness</span><b id="awareness">12%</b></div><div class="bar"><i id="awareBar" style="width:12%"></i></div>
+   <div class="statline"><span>Rent + wages / day</span><b id="wages">Rp 420.000</b></div>
+  </section>
+  <section class="panel"><h3>INVENTORY <span id="stockStatus">STOCK OK</span></h3><div class="inventory" id="inv"></div><button style="width:100%;margin-top:10px" data-panel="market">🛒 OPEN INGREDIENT MARKET</button></section>
+  <section class="panel"><h3>MENU ENGINEERING <span>PRICING</span></h3><div class="menu-list" id="menuList"></div><button style="width:100%;margin-top:12px" data-panel="studio">☕ OPEN MENU STUDIO</button></section>
+  <section class="panel">
+   <h3>MANAGEMENT ACTIONS</h3>
+   <div class="actions">
+    <button id="marketingBtn">↗ Local marketing<br><b>Rp 250k</b></button>
+    <button id="hireBtn">＋ Hire barista<br><b>Rp 1.2m</b></button>
+     <button id="cashierBtn">＋ Hire cashier<br><b>Rp 900k</b></button>
+    <button id="upgradeBtn">⚙ Upgrade machine<br><b>Rp 1.8m</b></button>
+     <button id="staffBtn">👥 Staff & breaks</button>
+    <button id="endDayBtn" class="dark">End day →<br><b>Settle accounts</b></button>
+   </div>
+    <button id="makeBtn" style="width:100%;margin-top:9px">🧑‍🍳 Make next drink yourself</button>
+  </section>
+  <section class="panel wide">
+   <h3>OPERATIONS LOG <span>LIVE FEED</span></h3>
+   <div class="log" id="log"><div><b>08:00</b> Store is ready. Review your supplies before opening.</div></div>
+  </section>
+ </aside>
+</div>
+<div class="modal-bg" id="modalBg"><div class="modal"><h2 id="modalTitle">Daily report</h2><p id="modalDesc">Your business performance.</p><div id="modalRows"></div><div class="modalfoot"><button id="modalClose">CLOSE</button><button class="primary" id="modalConfirm">CONFIRM</button></div></div></div>
+<div class="modal-bg" id="bigBg"><div class="modal wide" id="bigModal"></div></div>
+<div class="toast" id="toast"></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+const $=id=>document.getElementById(id),money=n=>'Rp '+Math.round(n).toLocaleString('id-ID'),pick=a=>a[Math.floor(Math.random()*a.length)],rnd=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// ================= DATA =================
+// name, unit, price/unit (Rp), pack size, supplier, starting stock
+const ING={beans:['Coffee beans','kg',180000,1,'Biji Nusantara Roastery',2],milk:['Fresh milk','L',20000,5,'Susu Segar Lembang',8],ice:['Ice','kg',3000,5,'Es Kristal Jaya',5],cups:['Takeaway cups','pcs',700,50,'PackPro Supplies',80],matcha:['Matcha powder','kg',450000,.5,'Uji Green Import',0],choc:['Chocolate sauce','L',60000,1,'Cokelat Priangan',0],caramel:['Caramel syrup','L',70000,1,'SyrupWorks',0],vanilla:['Vanilla syrup','L',70000,1,'SyrupWorks',0],tea:['Tea leaves','kg',120000,.5,'Teh Gunung Mas',0],filters:['Paper filters','pcs',400,50,'PackPro Supplies',30],oat:['Oat milk','L',40000,3,'Oat Distributor ID',0],cream:['Whipped cream','L',55000,1,'Susu Segar Lembang',0],sugar:['Sugar','kg',16000,2,'Gula Pasir Mart',1],lemon:['Lemon','kg',25000,1,'Pasar Induk Fresh',0],water:['Water','L',1000,20,'Aqua Depot',20],orange:['Orange','kg',28000,1,'Pasar Induk Fresh',0],mango:['Mango','kg',35000,1,'Pasar Induk Fresh',0],banana:['Banana','kg',22000,1,'Pasar Induk Fresh',0],strawberry:['Strawberry','kg',65000,.5,'Pasar Induk Fresh',0]};
+const IK=Object.keys(ING),CAT={espresso:'Espresso',manual:'Manual brew',non:'Non-coffee',juice:'Fresh juice'};
+// id, name, category, price, recipe per cup, prep seconds, popularity, unlock cost, sweet, strong, cold
+const DRINKS=[
+['espresso','Espresso','espresso',18000,{beans:.018,cups:1,water:.04},20,.6,0,0,1,0],
+['double','Double Espresso','espresso',26000,{beans:.036,cups:1,water:.06},25,.4,150000,0,1,0],
+['americano','Americano','espresso',22000,{beans:.018,cups:1,water:.2},22,.7,0,0,.7,0],
+['cappuccino','Cappuccino','espresso',28000,{beans:.018,milk:.12,cups:1},30,.7,0,.3,.6,0],
+['flatwhite','Flat White','espresso',30000,{beans:.036,milk:.15,cups:1},32,.5,200000,.2,.8,0],
+['hotlatte','Hot Latte','espresso',28000,{beans:.018,milk:.2,cups:1},28,.8,0,.35,.4,0],
+['latte','Iced Latte','espresso',28000,{beans:.018,milk:.15,ice:.1,cups:1},26,.9,0,.35,.4,1],
+['vanilla','Vanilla Latte','espresso',32000,{beans:.018,milk:.15,vanilla:.02,ice:.1,cups:1},30,.75,250000,.8,.3,1],
+['caramel','Caramel Latte','espresso',33000,{beans:.018,milk:.15,caramel:.02,ice:.1,cups:1},30,.75,250000,.85,.3,1],
+['mocha','Mocha','espresso',34000,{beans:.018,milk:.15,choc:.03,cream:.02,cups:1},34,.65,300000,.8,.4,0],
+['spanish','Spanish Latte','espresso',33000,{beans:.018,milk:.15,sugar:.02,ice:.1,cups:1},30,.7,250000,.75,.4,1],
+['v60','V60 Pour Over','manual',25000,{beans:.016,filters:1,water:.25,cups:1},60,.35,350000,0,.5,0],
+['japanese','Japanese Iced Coffee','manual',30000,{beans:.02,filters:1,ice:.12,water:.2,cups:1},65,.3,300000,0,.6,1],
+['coldbrew','Cold Brew','manual',29000,{beans:.03,water:.25,ice:.1,cups:1},18,.55,300000,.1,.7,1],
+['filter','Hot Filter Coffee','manual',22000,{beans:.016,filters:1,water:.25,cups:1},55,.3,150000,0,.5,0],
+['matcha','Matcha Latte','non',32000,{matcha:.004,milk:.2,cups:1},30,.6,350000,.4,.1,0],
+['imatcha','Iced Matcha','non',33000,{matcha:.004,milk:.15,ice:.1,sugar:.01,cups:1},30,.65,350000,.5,.1,1],
+['ichoc','Iced Chocolate','non',28000,{choc:.04,milk:.2,ice:.1,cups:1},25,.6,200000,.9,0,1],
+['hchoc','Hot Chocolate','non',27000,{choc:.04,milk:.22,cream:.015,cups:1},28,.5,200000,.9,0,0],
+['itea','Iced Tea','non',18000,{tea:.006,water:.25,ice:.12,sugar:.015,cups:1},20,.6,150000,.5,0,1],
+['lemontea','Lemon Tea','non',21000,{tea:.006,lemon:.04,water:.25,sugar:.015,ice:.1,cups:1},22,.55,150000,.45,0,1],
+['oat','Oat Milk Latte','espresso',34000,{beans:.018,oat:.2,cups:1},30,.5,300000,.3,.4,0],
+ ['orangejuice','Fresh Orange Juice','juice',26000,{orange:.22,ice:.1,cups:1},35,.7,180000,.6,0,1],
+ ['mangojuice','Mango Juice','juice',29000,{mango:.2,ice:.1,sugar:.01,cups:1},40,.65,220000,.7,0,1],
+ ['bananajuice','Banana Smoothie','juice',30000,{banana:.18,milk:.1,ice:.08,cups:1},45,.5,220000,.7,0,1],
+ ['strawberryjuice','Strawberry Juice','juice',32000,{strawberry:.16,ice:.1,sugar:.01,cups:1},40,.55,250000,.65,0,1]];
+const RECIPES={};
+const addRecipe=(d,cu)=>RECIPES[d[0]]={id:d[0],n:d[1],cat:d[2],base:d[3],r:d[4],t:d[5],pop:d[6],unlock:d[7],sweet:d[8],strong:d[9],cold:!!d[10],custom:!!cu};
+DRINKS.forEach(d=>addRecipe(d));
+// ================= STATE + MIGRATION =================
+const KEY='venture_proto_save';
+const state={v:3,day:1,cash:8000000,revenue:0,profit:0,orders:0,customers:0,reputation:52,satisfaction:78,awareness:12,stock:{},used:{},open:false,staff:0,machine:1,marketing:0,menu:{},custom:[],pstat:{},cogs:0,spent:0,served:0,walked:0,expenses:300000,time:8,promo:null,fresh:[],cashiers:0,cashierBreak:false};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s){Object.assign(state,s);if(!s.v){state.stock={beans:s.beans,milk:s.milk,ice:s.ice,cups:s.cups};state.menu={};['espresso','latte','v60'].forEach(k=>state.menu[k]={on:!!(s.menus&&s.menus[k]),unlocked:k!=='v60'||!!s.v60Unlocked,price:RECIPES[k].base})}}}catch(e){}
+if(state.v<3){state.staff=0;state.cashiers=0;state.cashierBreak=false}state.v=3;state.open=false;state.cashiers=state.cashiers||0;state.cashierBreak=!!state.cashierBreak;state.custom.forEach(d=>addRecipe(d,1));
+IK.forEach(k=>{if(typeof state.stock[k]!=='number'||isNaN(state.stock[k]))state.stock[k]=ING[k][5]});
+for(const id in RECIPES){const d=RECIPES[id];if(!state.menu[id])state.menu[id]={on:!d.unlock,unlocked:!d.unlock,price:d.base}}
+// ================= SETTINGS =================
+const SK='venture_settings',S=Object.assign({rot:1,zoom:1,minD:8,maxD:22,shadow:2,res:1,aa:true,perf:false,speed:1,sound:true,vol:.5,auto:true,autoSec:20},(()=>{try{return JSON.parse(localStorage.getItem(SK))||{}}catch(e){return{}}})());
+const saveS=()=>{try{localStorage.setItem(SK,JSON.stringify(S))}catch(e){}};
+let saveTimer;function save(force){if(!S.auto&&!force)return;try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function setAuto(){clearInterval(saveTimer);if(S.auto)saveTimer=setInterval(()=>save(),S.autoSec*1000)}
+let AC;function sfx(f=660,d=.12,t='sine'){if(!S.sound)return;try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=.12*S.vol;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+// ================= HELPERS =================
+const cost=r=>Object.entries(r).reduce((a,[k,q])=>a+ING[k][2]*q,0),mn=id=>state.menu[id];
+const missing=id=>Object.entries(RECIPES[id].r).filter(([k,q])=>state.stock[k]<q-1e-9).map(([k])=>ING[k][0]);
+const avail=id=>mn(id)&&mn(id).unlocked&&mn(id).on&&!missing(id).length;
+const listOn=()=>Object.keys(RECIPES).filter(id=>mn(id).unlocked&&mn(id).on),availList=()=>Object.keys(RECIPES).filter(avail);
+const uses=k=>listOn().filter(id=>RECIPES[id].r[k]),lowK=k=>uses(k).length>0&&state.stock[k]<ING[k][3]*.4;
+const fmt=(k,v)=>ING[k][1]==='pcs'?Math.floor(v+1e-9)+' pcs':(v<10?v.toFixed(2):v.toFixed(1))+' '+ING[k][1];
+const margin=id=>mn(id).price-cost(RECIPES[id].r);
+function pickPromo(){const a=availList();state.promo=a.length?pick(a):null}
+function log(msg){const d=document.createElement('div');d.innerHTML=`<b>${String(Math.floor(state.time)).padStart(2,'0')}:${String(Math.floor((state.time%1)*60)).padStart(2,'0')}</b> ${msg}`;$('log').prepend(d);while($('log').children.length>30)$('log').lastChild.remove()}
+let toastTimer;function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2100)}
+function afford(c){if(state.cash<c){toast('Insufficient cash. Review your finances.');return false}state.cash-=c;return true}
+function updateUI(){
+ state.profit=state.revenue-state.cogs-state.expenses;const busy=baristas.filter(b=>b.order).length,wl=Math.min(100,Math.round((queue.length+busy)/Math.max(1,baristas.length)*50));
+ $('day').textContent=String(state.day).padStart(2,'0');$('cash').textContent=money(state.cash);$('revenue').textContent=money(state.revenue);$('profit').textContent=money(state.profit);$('orders').textContent=state.orders+' orders served';$('customers').textContent=state.customers;$('reputation').textContent=Math.round(state.reputation);$('repLabel').textContent=state.reputation>75?'Local favourite':state.reputation>55?'Building awareness':'New business';
+ $('satisfaction').textContent=Math.round(state.satisfaction)+'%';$('satBar').style.width=state.satisfaction+'%';$('workload').textContent=wl+'%';$('workBar').style.width=wl+'%';$('awareness').textContent=Math.round(state.awareness)+'%';$('awareBar').style.width=state.awareness+'%';$('wages').textContent=money(state.expenses);
+ const low=IK.filter(lowK);$('stockStatus').textContent=low.length?'LOW: '+low.length:'STOCK OK';
+ $('inv').innerHTML=IK.filter(k=>state.stock[k]>0||uses(k).length).map(k=>`<div class="stock${lowK(k)?' low':''}"><small>${ING[k][0]}</small><b>${fmt(k,state.stock[k])}</b></div>`).join('');
+ const on=listOn();$('menuList').innerHTML=on.slice(0,6).map(id=>{const d=RECIPES[id],mg=Math.round(margin(id)/mn(id).price*100),ms=missing(id).length;return `<div class="menu-item"><div><b>${esc(d.n)}</b><br><span>${money(mn(id).price)} · ${mg}% margin</span></div><span class="${ms?'bad':'good'}">${ms?'OUT':'OK'}</span></div>`}).join('')+(on.length>6?`<div class="menu-item"><span>+${on.length-6} more on menu</span></div>`:'');
+ $('status').textContent=state.open?'OPEN · LIVE':'CLOSED';$('openBtn').textContent=state.open?'CLOSE BUSINESS':'OPEN BUSINESS';$('hireBtn').disabled=state.staff>=4;$('cashierBtn').disabled=state.cashiers>=2;$('makeBtn').disabled=queue.length===0||baristas.some(b=>!b.break)}
+// ================= PANELS (market / studio / settings) =================
+let panel=null;
+function showPanel(n){panel=n;({market:rMarket,studio:rStudio,set:rSet,staff:rStaff})[n]();$('bigBg').classList.add('show')}
+function keepScroll(f){const m=$('bigModal'),s=m.scrollTop;f();m.scrollTop=s}
+function rMarket(){keepScroll(()=>{const rows=IK.map(k=>{const[n,u,p,pk,sup]=ING[k],us=uses(k),aff=us.filter(id=>state.stock[k]<RECIPES[id].r[k]).map(id=>RECIPES[id].n),est=us.length?Math.floor(state.stock[k]/(us.reduce((a,id)=>a+RECIPES[id].r[k],0)/us.length)):'—';
+ return `<tr><td><b>${n}</b><br><small>${sup}</small></td><td>${money(p)}/${u}<br><small>pack: ${pk} ${u}</small></td><td class="${lowK(k)?'bad':''}">${fmt(k,state.stock[k])}<br><small>≈ ${est} cups · used today ${fmt(k,state.used[k]||0)}</small>${aff.length?`<br><small class="bad">Blocks: ${esc(aff.slice(0,3).join(', '))}${aff.length>3?'…':''}</small>`:''}</td><td class="r"><button data-buy="${k}:1">+1 pack<br><small>${money(p*pk)}</small></button> <button data-buy="${k}:5">+5 packs</button> <button data-buy="${k}:10">+10 <small>−5%</small></button></td></tr>`}).join('');
+ $('bigModal').innerHTML=`<div class="mh"><div><h2>Ingredient Market</h2><p>Cash ${money(state.cash)} · Buying 10 packs gets 5% off. Stock updates instantly.</p></div><button data-close>✕</button></div><table class="tb"><tr><th>Ingredient / supplier</th><th>Price</th><th>Stock</th><th></th></tr>${rows}</table>`})}
+function buy(k,n){const[nm,u,p,pk]=ING[k],c=Math.round(p*pk*n*(n>=10?.95:1));if(!afford(c))return;state.stock[k]+=pk*n;state.spent+=c;log(`Bought ${n} pack${n>1?'s':''} of ${nm} · ${money(c)}.`);sfx(520,.08);updateUI();save();rMarket()}
+function rStudio(){keepScroll(()=>{const rows=Object.keys(RECIPES).map(id=>{const d=RECIPES[id],m=mn(id),c=cost(d.r),mg=m.price?Math.round((m.price-c)/m.price*100):0,ps=state.pstat[id]||{n:0,p:0},ms=missing(id);
+ const act=!m.unlocked?`<button class="primary" data-unlock="${id}">Unlock ${money(d.unlock)}</button>`:`<button class="toggle ${m.on?'on':''}" data-tog="${id}" aria-label="toggle"></button>${d.custom?` <button data-del="${id}" title="Remove">✕</button>`:''}`;
+ return `<tr class="${m.unlocked?'':'lock'}"><td><b>${esc(d.n)}</b>${d.custom?' <small>(custom)</small>':''}<br><small>${CAT[d.cat]} · ${Object.entries(d.r).map(([k,q])=>ING[k][0]+' '+q).join(', ')}</small></td><td>${m.unlocked?`<input class="num" type="number" step="500" min="1000" value="${m.price}" data-price="${id}">`:money(m.price)}</td><td>${money(c)}</td><td class="${mg<30?'bad':mg>60?'good':''}">${mg}%</td><td>${d.t}s</td><td>${Math.round(d.pop*100)}%</td><td>${ps.n} · <span class="${ps.p<0?'bad':''}">${money(ps.p)}</span>${ms.length&&m.unlocked&&m.on?`<br><small class="bad">Missing: ${esc(ms.join(', '))}</small>`:''}</td><td class="r">${act}</td></tr>`}).join('');
+ $('bigModal').innerHTML=`<div class="mh"><div><h2>Menu Studio</h2><p>Cash ${money(state.cash)} · A popular drink is not always a profitable one. Watch margin and today's profit.</p></div><button data-close>✕</button></div><table class="tb"><tr><th>Drink / recipe</th><th>Price</th><th>Cost</th><th>Margin</th><th>Prep</th><th>Popularity</th><th>Sold · profit today</th><th></th></tr>${rows}</table><div style="margin-top:12px"><button class="primary" data-newc>＋ CREATE CUSTOM DRINK</button></div><div id="cf"></div>`})}
+function unlockDrink(id){const d=RECIPES[id];if(!afford(d.unlock))return;mn(id).unlocked=true;mn(id).on=true;state.fresh=[id,...state.fresh.filter(x=>x!==id)].slice(0,3);log(`${d.n} unlocked. Needs: ${Object.keys(d.r).map(k=>ING[k][0]).join(', ')}.`);sfx(740,.12);updateUI();save();rStudio()}
+function togDrink(id){mn(id).on=!mn(id).on;log((mn(id).on?'Enabled ':'Paused ')+RECIPES[id].n+'.');updateUI();save();rStudio()}
+function delDrink(id){delete RECIPES[id];delete state.menu[id];state.custom=state.custom.filter(d=>d[0]!==id);state.fresh=state.fresh.filter(x=>x!==id);updateUI();save();rStudio()}
+function rCustom(base){const b=RECIPES[base];$('cf').innerHTML=`<div class="cf"><h3>New custom drink</h3><div class="row"><input id="cfn" placeholder="Drink name" maxlength="24" data-cf><select id="cfb" data-cfb>${Object.keys(RECIPES).map(id=>`<option value="${id}" ${id===base?'selected':''}>Base: ${esc(RECIPES[id].n)}</option>`).join('')}</select><label>Price <input id="cfp" class="num" type="number" step="500" min="1000" value="${b.base+3000}" data-cf></label></div><div class="qg">${IK.map(k=>`<label>${ING[k][0]} (${ING[k][1]})<input class="num" type="number" step="any" min="0" data-cfq="${k}" data-cf value="${b.r[k]||0}"></label>`).join('')}</div><div class="row"><span id="cfv"></span><button class="primary" data-savec>Save drink</button></div></div>`;cfUpdate()}
+function cfRead(){const r={};document.querySelectorAll('[data-cfq]').forEach(i=>{const v=+i.value;if(v>0)r[i.dataset.cfq]=Math.round(v*1e4)/1e4});return r}
+function cfUpdate(){const c=cost(cfRead()),p=+$('cfp').value||0,mg=p?Math.round((p-c)/p*100):0;$('cfv').innerHTML=`Cost <b>${money(c)}</b> · Margin <b class="${mg<30?'bad':'good'}">${mg}%</b>`}
+function saveCustom(){const n=$('cfn').value.trim(),r=cfRead(),price=+$('cfp').value,b=RECIPES[$('cfb').value];if(!n)return toast('Give your drink a name');if(!(r.cups>=1))return toast('Every drink needs at least 1 cup');if(Object.keys(r).length<2)return toast('Add at least one more ingredient');if(!(price>=1000))return toast('Set a valid price');
+ const id='c'+Date.now().toString(36),sw=clamp(b.sweet+((r.vanilla||0)+(r.caramel||0)+(r.choc||0))*10+(r.sugar||0)*8,0,1),d=[id,n,b.cat,price,r,b.t,.4,0,sw,b.strong,(r.ice||0)>0];addRecipe(d,1);state.custom.push(d);state.menu[id]={on:true,unlocked:true,price};state.fresh=[id,...state.fresh].slice(0,3);log(`New custom drink <b>${esc(n)}</b> added to the menu.`);toast('Custom drink saved');sfx(740,.12);updateUI();save();rStudio()}
+function rSet(){const sl=(k,l,a,b,s)=>`<label class="sl">${l}<b id="v_${k}">${S[k]}</b><input type="range" min="${a}" max="${b}" step="${s}" value="${S[k]}" data-s="${k}"></label>`,ck=(k,l)=>`<label class="ck"><input type="checkbox" ${S[k]?'checked':''} data-s="${k}"> ${l}</label>`;
+ $('bigModal').innerHTML=`<div class="mh"><div><h2>Settings</h2><p>Changes apply immediately and are saved in this browser.</p></div><button data-close>✕</button></div><div class="set"><h4>CAMERA</h4>${sl('rot','Rotation sensitivity',.2,3,.1)}${sl('zoom','Zoom sensitivity',.2,3,.1)}${sl('minD','Minimum zoom distance',3,15,1)}${sl('maxD','Maximum zoom distance',14,40,1)}<button data-camreset>⌖ Reset camera</button><h4>GRAPHICS</h4><label class="sl">Shadow quality <select data-s="shadow"><option value="0" ${S.shadow==0?'selected':''}>Off</option><option value="1" ${S.shadow==1?'selected':''}>Low</option><option value="2" ${S.shadow==2?'selected':''}>High</option></select></label>${sl('res','Render resolution scale',.5,2,.25)}${ck('aa','Antialiasing (applies after reload)')}${ck('perf','Performance mode (no shadows, 1x resolution)')}<h4>GAMEPLAY</h4><label class="sl">Simulation speed <select data-s="speed"><option value="1" ${S.speed==1?'selected':''}>1x</option><option value="2" ${S.speed==2?'selected':''}>2x</option><option value="3" ${S.speed==3?'selected':''}>3x</option></select></label>${ck('sound','Sound effects')}${sl('vol','Volume',0,1,.1)}${ck('auto','Autosave')}${sl('autoSec','Autosave interval (seconds)',5,120,5)}<button data-savenow>💾 Save now</button></div>`}
+function applySettings(){controls.rotateSpeed=S.rot;controls.zoomSpeed=S.zoom;controls.minDistance=Math.min(S.minD,S.maxD-1);controls.maxDistance=Math.max(S.maxD,S.minD+1);controls.update();
+ renderer.setPixelRatio(S.perf?1:clamp(devicePixelRatio*S.res,.5,2.5));resize();const sh=!S.perf&&S.shadow>0;if(renderer.shadowMap.enabled!==sh){renderer.shadowMap.enabled=sh;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true})}
+ const ms=S.shadow===2?2048:1024;if(sun.shadow.mapSize.x!==ms){sun.shadow.mapSize.set(ms,ms);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}}
+
+// Three.js scene
+const host=$('scene'),scene=new THREE.Scene();scene.background=new THREE.Color('#dfe7dc');scene.fog=new THREE.Fog('#dfe7dc',18,32);
+const camera=new THREE.PerspectiveCamera(38,host.clientWidth/host.clientHeight,.1,100);camera.position.set(10,11,12);
+const renderer=new THREE.WebGLRenderer({antialias:S.aa});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,0.5,0);controls.enableDamping=true;controls.minDistance=8;controls.maxDistance=22;controls.maxPolarAngle=Math.PI/2.15;controls.minPolarAngle=.35;controls.update();
+let cameraMode='overview',camTween=null;const camViews={overview:{p:new THREE.Vector3(10,11,12),t:new THREE.Vector3(0,.5,0)},checkout:{p:new THREE.Vector3(.65,2.55,.25),t:new THREE.Vector3(.65,1.25,-1.45)},barista:{p:new THREE.Vector3(-2.25,2.7,-4.65),t:new THREE.Vector3(-2.25,1.3,-2.55)}};function setCameraMode(mode){cameraMode=mode;const v=camViews[mode];camTween={fromP:camera.position.clone(),fromT:controls.target.clone(),toP:v.p.clone(),toT:v.t.clone(),t:0};controls.enabled=mode==='overview';$('scene').classList.toggle('interacting',mode!=='overview');let b=$('sceneBadge');if(!b){b=document.createElement('div');b.id='sceneBadge';b.className='scene-badge';$('scene').appendChild(b)}b.textContent=mode==='checkout'?'CUSTOMER CHECKOUT · Cashier view':mode==='barista'?'BARISTA STATION · Hands-on mode':'SHOP OVERVIEW';b.style.display=mode==='overview'?'none':'block'}
+scene.add(new THREE.HemisphereLight(0xffffff,0x8c9a87,2));
+const sun=new THREE.DirectionalLight(0xfff3dc,3.1);sun.position.set(-5,12,8);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-12;sun.shadow.camera.right=12;sun.shadow.camera.top=12;sun.shadow.camera.bottom=-12;scene.add(sun);
+const mat=(c,rough=.8)=>new THREE.MeshStandardMaterial({color:c,roughness:rough});
+const M={floor:mat('#d9cbb4'),wall:mat('#f4f1e8'),green:mat('#55735c'),dark:mat('#35483b'),wood:mat('#a8784f'),wood2:mat('#c99b6d'),metal:mat('#8c9998',.35),black:mat('#343b39',.4),cream:mat('#f8f4e9'),glass:new THREE.MeshStandardMaterial({color:'#b9d7d2',roughness:.2,transparent:true,opacity:.55}),plant:mat('#66865d'),skin:mat('#d6a47d'),shirt:mat('#e6e8df'),shirt2:mat('#b5c7b7'),coffee:mat('#553321')};
+const group=new THREE.Group();scene.add(group);
+function box(parent,x,y,z,w,h,d,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;parent.add(o);return o}
+function cyl(parent,x,y,z,r1,r2,h,material,seg=20){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,seg),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function sphere(parent,x,y,z,r,material){const o=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),material);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o}
+// floor slab and room shell, front side intentionally open for visibility
+box(group,0,-.18,0,12,.35,10,M.floor);
+box(group,0,2.15,-4.85,12,4.6,.25,M.wall);box(group,-5.85,2.15,0,.25,4.6,9.7,M.wall);box(group,5.85,2.15,0,.25,4.6,9.7,M.wall);
+// wall trim and windows
+box(group,0,4.48,-4.69,11.8,.12,.16,M.wood);for(let x=-4.5;x<=4.6;x+=2.25){box(group,x,2.55,-4.69,1.7,1.65,.08,M.glass,false);box(group,x,2.55,-4.62,.07,1.7,.1,M.wood,false)}
+// counter and coffee station
+box(group,-1.7,.55,-2.65,5.2,1.05,1.05,M.wood);box(group,-1.7,1.12,-2.65,5.25,.12,1.1,M.dark);
+box(group,-1.7,.14,-2.65,5.1,.16,1.0,M.dark);
+box(group,-3.25,1.28,-2.65,1.2,.12,.8,M.cream); // service top
+// espresso machine
+box(group,-2.1,1.55,-2.75,1.35,.65,.62,M.metal);box(group,-2.1,1.91,-2.75,1.18,.08,.52,M.black);
+for(let x=-2.5;x<=-1.7;x+=.4){cyl(group,x,1.25,-2.55,.08,.08,.23,M.metal);cyl(group,x,1.22,-2.55,.12,.12,.04,M.black)}
+box(group,-2.1,1.94,-2.75,.45,.08,.12,M.green);
+// grinder
+box(group,-3.75,1.55,-2.7,.42,.65,.42,M.black);cyl(group,-3.75,1.96,-2.7,.2,.2,.18,M.metal);cyl(group,-3.75,2.1,-2.7,.16,.16,.12,M.cream);
+// pour over station
+cyl(group,-.55,1.32,-2.65,.28,.28,.13,M.metal);cyl(group,-.55,1.5,-2.65,.16,.21,.3,M.cream);cyl(group,-.55,1.69,-2.65,.13,.17,.1,M.wood2);
+cyl(group,.05,1.35,-2.65,.2,.2,.32,M.glass);cyl(group,.05,1.52,-2.65,.23,.23,.06,M.metal);
+// POS register
+box(group,.75,1.45,-2.72,.48,.55,.38,M.dark);box(group,.75,1.78,-2.72,.4,.22,.05,M.green);
+// Interactive checkout and barista tools
+const checkoutPhone=new THREE.Group();checkoutPhone.position.set(1.18,1.48,-1.55);group.add(checkoutPhone);box(checkoutPhone,0,0,0,.16,.25,.025,M.black);box(checkoutPhone,0,.01,.016,.13,.2,.008,M.glass,false);
+const cardTerminal=new THREE.Group();cardTerminal.position.set(.72,1.34,-2.25);group.add(cardTerminal);box(cardTerminal,0,0,0,.25,.18,.2,M.dark);box(cardTerminal,0,.1,-.02,.2,.035,.13,M.green);
+const grinderHandle=cyl(group,-3.75,2.22,-2.7,.025,.025,.38,M.metal);grinderHandle.rotation.z=.5;
+const pitcher=cyl(group,-1.05,1.38,-2.35,.12,.1,.22,M.metal);pitcher.rotation.z=-.15;
+const prepCup=cyl(group,-.95,1.32,-2.65,.09,.09,.16,M.cream);
+const blender=box(group,-3.25,1.35,-2.15,.38,.3,.32,M.metal);const blenderJar=cyl(group,-3.25,1.65,-2.15,.13,.16,.32,M.glass);
+// Articulated first-person barista rig: shoulder -> upper arm -> elbow -> forearm -> wrist -> palm -> fingers.
+const actionHands=new THREE.Group();actionHands.position.set(-2.25,1.02,-1.95);group.add(actionHands);
+const handMat=M.skin, sleeveMat=M.shirt2;
+function makeArm(side){
+ const shoulder=new THREE.Group();shoulder.position.set(side*.34,.42,0);actionHands.add(shoulder);
+ sphere(shoulder,0,0,0,.105,sleeveMat);
+ const upper=cyl(shoulder,0,-.19,0,.075,.062,.34,sleeveMat,14);
+ const elbow=new THREE.Group();elbow.position.set(0,-.36,0);shoulder.add(elbow);sphere(elbow,0,0,0,.067,handMat);
+ cyl(elbow,0,-.17,0,.057,.048,.31,handMat,14);
+ const wrist=new THREE.Group();wrist.position.set(0,-.34,.015);elbow.add(wrist);
+ cyl(wrist,0,-.035,0,.045,.042,.09,handMat,12);
+ const palm=new THREE.Group();palm.position.set(0,-.09,.045);wrist.add(palm);
+ const palmMesh=box(palm,0,0,.025,.14,.075,.17,handMat);
+ const fingers=[];
+ for(let i=0;i<4;i++){
+   const f=new THREE.Group();f.position.set((i-1.5)*.033,-.006,.105);palm.add(f);
+   cyl(f,0,0,.035,.014,.012,.075,handMat,8);
+   sphere(f,0,0,.073,.013,handMat);fingers.push(f);
+ }
+ const thumb=new THREE.Group();thumb.position.set(side*.075,-.005,.045);thumb.rotation.y=side*.5;palm.add(thumb);
+ cyl(thumb,0,0,.035,.017,.014,.075,handMat,8);
+ return {shoulder,elbow,wrist,palm,fingers,thumb};
+}
+const armL=makeArm(-1),armR=makeArm(1);actionHands.visible=false;
+actionHands.userData.rig=[armL,armR];
+const stationHotspot=new THREE.Mesh(new THREE.CylinderGeometry(.72,.72,.035,32),new THREE.MeshBasicMaterial({color:0x82a889,transparent:true,opacity:.55}));stationHotspot.position.set(-2.15,.04,-2.25);stationHotspot.userData.interact='barista';group.add(stationHotspot);
+// shelves at back
+box(group,3.9,1.25,-4.2,2.7,.12,.55,M.wood);box(group,3.9,2.25,-4.2,2.7,.12,.55,M.wood);box(group,3.9,3.2,-4.2,2.7,.12,.55,M.wood);
+for(let y of [1.55,2.55,3.5])for(let x of [3.0,3.65,4.3,4.9]){cyl(group,x,y,-4.2,.13,.13,.35,M.cream);}
+// menu board
+box(group,1.8,3.5,-4.65,2.1,1.05,.12,M.dark);for(let y=3.72;y>3.25;y-=.2)box(group,1.5,y,-4.57,.95,.025,.025,M.cream,false);
+// seating tables
+const tables=[];
+function makeTable(x,z){const t=new THREE.Group();t.position.set(x,0,z);group.add(t);cyl(t,0,.55,0,.48,.48,.12,M.wood2);cyl(t,0,.27,0,.09,.12,.5,M.dark);cyl(t,0,.05,0,.32,.32,.08,M.dark);
+ for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const cx=Math.cos(a)*.85,cz=Math.sin(a)*.85;box(t,cx,.32,cz,.58,.12,.58,M.green);box(t,cx,.58,cz-.24,.58,.52,.1,M.wood)}tables.push(t);return t}
+makeTable(-3.5,.3);makeTable(0,.65);makeTable(3.4,.5);makeTable(-2.0,3.0);makeTable(2.0,3.0);
+// plant pots
+function plant(x,z){cyl(group,x,.18,z,.28,.32,.35,M.wood);for(let i=0;i<6;i++){const a=i*Math.PI/3;const leaf=sphere(group,x+Math.cos(a)*.22,.65+Math.random()*.25,z+Math.sin(a)*.22,.22,M.plant);leaf.scale.set(.7,1.6,.7)}}
+plant(-5,3.6);plant(5,3.7);plant(5,-1.8);
+// lamp pendants
+for(const x of [-3,0,3]){cyl(group,x,3.85,-1.1,.025,.025,.7,M.dark);cyl(group,x,3.45,-1.1,.28,.12,.18,M.wood2)}
+// Door frame / entrance
+box(group,4.5,1.15,4.83,1.55,2.3,.12,M.wood);box(group,4.5,1.15,4.75,1.3,2.05,.08,M.glass);
+
+// ================= SCENE EXTRAS =================
+box(group,0,.01,1.7,9.4,.03,5,mat('#c9d6c3'),false);box(group,-5.2,.95,-3.95,1,1.9,.8,M.metal);box(group,-5.2,1.25,-3.53,.8,.05,.03,M.black);
+for(const x of [-3.6,.6])box(group,x,3.45,-4.7,.9,.7,.05,M.dark),box(group,x,3.45,-4.67,.78,.58,.03,M.cream);
+for(let i=0;i<3;i++)cyl(group,-3.2+i*.35,1.35,-2.15,.09,.11,.18,M.cream);
+box(group,0,-.43,0,200,.1,200,mat('#dfe7dc'),false);
+// ================= CHARACTERS =================
+const mc={},sm=(c,r=.7)=>mc[c+r]||(mc[c+r]=new THREE.MeshStandardMaterial({color:c,roughness:r}));
+const sph=(p,x,y,z,r,m,sx=1,sy=1,sz=1)=>{const o=sphere(p,x,y,z,r,m);o.scale.set(sx,sy,sz);return o};
+const SKIN=['#f1c9a5','#d6a47d','#b97c58','#8d5a3b'],HAIRC=['#1f1a17','#3b2a1e','#6b4a2f','#a9743b','#8a8a8a','#8e3b2f'];
+function limb(p,x,y,len,r,top,low){const g=new THREE.Group();g.position.set(x,y,0);p.add(g);cyl(g,0,-len*.28,0,r,r,len*.56,top,10);cyl(g,0,-len*.78,0,r*.85,r*.8,len*.44,low,10);return g}
+function makePerson(o){const root=new THREE.Group(),body=new THREE.Group(),skin=sm(o.skin,.6),hair=sm(o.hair,.9),top=sm(o.top),pants=sm(o.pants),dark=sm('#1d1d1d',.5),P={body};root.add(body);root.scale.set(1.12*o.w,1.12*o.h,1.12*o.w);
+ [-1,1].forEach(s=>{const l=limb(body,s*.09,.62,.6,.075,pants,pants);box(l,0,-.6,.05,.13,.08,.27,sm(o.shoe,.6));P[s<0?'legL':'legR']=l;const a=limb(body,s*.225,1.13,.52,.055,top,skin);sphere(a,0,-.53,0,.05,skin);P[s<0?'armL':'armR']=a;sph(body,s*.2,1.13,0,.07,top)});
+ cyl(body,0,.9,0,.175,.15,.56,top,14);cyl(body,0,.63,0,.16,.16,.14,pants,14);cyl(body,0,1.2,0,.05,.055,.1,skin,10);
+ if(o.apron){const ap=sm(o.apron);box(body,0,.82,.14,.3,.46,.035,ap);box(body,0,.95,.165,.12,.1,.02,sm('#e8efe6'))}
+ if(o.bag)box(body,.25,.72,0,.07,.2,.2,sm('#7a5a3a'));if(o.scarf){const s=new THREE.Mesh(new THREE.TorusGeometry(.07,.025,8,16),sm('#b85c4a'));s.rotation.x=Math.PI/2;s.position.y=1.16;body.add(s)}
+ const H=new THREE.Group();H.position.y=1.34;body.add(H);P.head=H;sph(H,0,0,0,.135,skin,1,1.08,1);[-1,1].forEach(s=>{sph(H,s*.135,0,0,.03,skin);sph(H,s*.05,.03,.118,.015,dark);box(H,s*.05,.07,.122,.045,.01,.01,hair,false)});
+ sph(H,0,-.01,.13,.025,skin);P.mouth=box(H,0,-.06,.125,.05,.012,.01,sm('#8a3a3a'),false);
+ if(o.style==='cap'){const c=sm(o.top==='#f3f1e8'?'#315b43':'#3a4558');cyl(H,0,.1,0,.145,.145,.08,c,16);box(H,0,.075,.14,.2,.015,.1,c)}else if(o.style!=='none'){sph(H,0,.06,-.03,.145,hair,1,.75,1);if(o.style==='long')box(H,0,-.1,-.1,.27,.34,.07,hair);if(o.style==='bun')sph(H,0,.2,-.05,.06,hair)}
+ if(o.glasses){[-1,1].forEach(s=>{const g=new THREE.Mesh(new THREE.TorusGeometry(.03,.006,6,12),dark);g.position.set(s*.05,.03,.128);H.add(g)});box(H,0,.035,.13,.03,.006,.006,dark,false)}
+ root.userData={P,path:[],sit:false,act:null,talk:0,nod:0,shake:0,ph:Math.random()*6};return root}
+function animPerson(p,dt,moving){const u=p.userData,P=u.P,t=u.ph+=dt;let ll=0,al=0,ar=0,by=0,hx=0,hy=0,mo=1;
+ if(moving){const s=Math.sin(t*9);ll=s*.7;al=-s*.55;ar=s*.55;by=Math.abs(Math.cos(t*9))*.03}else if(u.sit){ll=-1.5;by=-.26;al=ar=-.7}else{al=Math.sin(t*1.6)*.06;ar=-al;by=Math.sin(t*2)*.01}
+ if(u.act==='work'){ar=-1.25+Math.sin(t*7)*.35;al=-1.05+Math.sin(t*5+1)*.25;hx=.25}else if(u.act==='serve')ar=al=-1.3;else if(u.act==='sip'){ar=-2+Math.sin(t*1.5)*.15;hx=-.08}
+ if(u.talk>0){u.talk-=dt;mo=1+Math.abs(Math.sin(t*14))*2.4;hx+=Math.sin(t*6)*.05;if(!u.act&&!moving)ar=-.5+Math.sin(t*5)*.3}
+ if(u.nod>0){u.nod-=dt;hx+=Math.sin(u.nod*10)*.3}if(u.shake>0){u.shake-=dt;hy=Math.sin(u.shake*14)*.5}
+ P.legL.rotation.x=ll;P.legR.rotation.x=u.sit&&!moving?ll:-ll;P.armL.rotation.x=al;P.armR.rotation.x=ar;P.body.position.y=by;P.head.rotation.x=hx;P.head.rotation.y=hy;P.mouth.scale.y=mo}
+function step(p,dt){const u=p.userData;if(u.path&&u.path.length){const t=u.path[0],dx=t.x-p.position.x,dz=t.z-p.position.z,d=Math.hypot(dx,dz),s=1.7*dt;let da=Math.atan2(dx,dz)-p.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));p.rotation.y+=da*Math.min(1,dt*12);
+  if(d<=s){p.position.x=t.x;p.position.z=t.z;u.path.shift();if(!u.path.length&&u.onArrive){const f=u.onArrive;u.onArrive=null;f()}}else{p.position.x+=dx/d*s;p.position.z+=dz/d*s}return true}
+ if(u.face!=null){let da=u.face-p.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));p.rotation.y+=da*Math.min(1,dt*8)}return false}
+const look=()=>({skin:pick(SKIN),hair:pick(HAIRC),style:pick(['short','long','bun','cap','short']),top:pick(['#c58d70','#758ba0','#c1a16a','#8c7898','#b85c4a','#4f7a8c','#d8b04a','#6d8f5e']),pants:pick(['#3a4558','#4a4036','#2f3a33','#6b6f78']),shoe:pick(['#2b2b2b','#f1f1ec','#7a4a2b']),glasses:Math.random()<.3,bag:Math.random()<.3,scarf:Math.random()<.15,w:rnd(.92,1.08),h:rnd(.94,1.07)});
+const disposeObj=g=>{g.traverse(o=>o.geometry&&o.geometry.dispose());g.parent&&g.parent.remove(g)};
+// ================= STAFF, SEATS, QUEUE =================
+const baristas=[],queue=[],custs=[],HOME=[-3.2,-1.6,-.2,1],STATION={espresso:-2.1,manual:-.4,non:-3.3,juice:-3.3};let oid=0,spawnT=2,uiT=0,D=null;
+function syncBar(){while(baristas.length<Math.min(state.staff,4)){const i=baristas.length,g=makePerson({...look(),style:pick(['short','bun','long','cap']),top:'#f3f1e8',pants:'#2c3a31',apron:'#315b43',glasses:false,bag:false,scarf:false});g.position.set(HOME[i],0,-3.5);g.userData.face=0;group.add(g);baristas.push({g,i,order:null,t:0,srv:0,break:false})}}
+function barUpdate(b,dt){const g=b.g,u=g.userData;if(b.break&&!b.order){u.act=null;if(Math.abs(g.position.x-HOME[b.i])>.05&&!u.path.length)u.path=[{x:HOME[b.i],z:-3.5}];const mv=step(g,dt);animPerson(g,dt,mv);return}const mv=step(g,dt);animPerson(g,dt,mv);
+ if(!b.order){if(b.srv>0){b.srv-=dt;u.act='serve'}else u.act=null;const o=queue.shift();if(o){b.order=o;o.state='making';u.act=null;u.path=[{x:STATION[RECIPES[o.drink]?RECIPES[o.drink].cat:'espresso'],z:-3.5}];u.onArrive=()=>{b.t=RECIPES[o.drink].t*(1-.1*(state.machine-1))}}else if(Math.abs(g.position.x-HOME[b.i])>.05&&!u.path.length)u.path=[{x:HOME[b.i],z:-3.5}];return}
+ if(!mv&&u.path.length===0&&b.t>0){u.act='work';b.t-=dt;if(b.t<=0){finish(b.order);b.order=null;b.srv=.9;u.act=null;u.path=[{x:HOME[b.i],z:-3.5}]}}}
+function finish(o){const c=o.c;if(c.gone){log('Order for a customer who already left was wasted.');return}state.revenue+=o.price;state.orders++;state.served++;const ps=state.pstat[o.drink]||(state.pstat[o.drink]={n:0,p:0});ps.n++;ps.p+=o.price-o.cogs;
+ state.satisfaction=clamp(state.satisfaction+(o.age<RECIPES[o.drink].t*2+25?.35:-.6),25,98);state.reputation=Math.min(100,state.reputation+.04);log(`Served <b>${esc(RECIPES[o.drink].n)}</b> to ${esc(c.prof.name)} · ${money(o.price)}.`);sfx(988,.1,'triangle');c.pending=false;c.served=true;if(c.state==='seated')startSip(c);updateUI();save()}
+function startSip(c){const s=c.seat,cp=cyl(group,s.tx+Math.cos(s.a)*.3,.67,s.tz+Math.sin(s.a)*.3,.07,.055,.12,M.cream);c.cup=cp;c.g.userData.act='sip';c.sip=7}
+// ================= CUSTOMERS =================
+const SPOTS=[-3.4,-2.3,-1.2,-.1,1].map(x=>({x,z:-1.35,used:false})),SEATS=[];tables.forEach(t=>[0,1,2,3].forEach(i=>{const a=i*Math.PI/2;SEATS.push({x:t.position.x+Math.cos(a)*.85,z:t.position.z+Math.sin(a)*.85,tx:t.position.x,tz:t.position.z,a,used:false})}));
+const NAMES=['Rina','Bima','Sari','Dewi','Agus','Putri','Dimas','Maya','Raka','Nadia','Fajar','Lina','Andre','Tika','Yoga','Citra'];
+const profile=()=>({name:pick(NAMES),taste:pick(['sweet','strong','light']),cat:pick(['espresso','espresso','manual','non','non']),temp:pick(['cold','cold','hot',null]),budget:Math.round(rnd(16000,48000)/1000)*1000,sens:rnd(.15,1),loy:clamp(rnd(0,.5)+(state.reputation-50)/200,0,1),mood:Math.round(rnd(35,80)),patience:rnd(45,80),cur:rnd(.1,1)});
+function spawnCust(){const sp=SPOTS.find(s=>!s.used);if(!sp||custs.length>=10)return;sp.used=true;const g=makePerson(look()),c={g,prof:profile(),state:'enter',spot:sp,gone:false};g.userData.cust=c;g.position.set(4.5,0,6.4);
+ g.userData.path=[{x:4.5,z:3.9},{x:4.65,z:1.9},{x:4.65,z:-1.35},{x:sp.x,z:-1.35}];g.userData.onArrive=()=>{if(c.gone)return;c.state='wait';c.patience=c.prof.patience;g.userData.face=Math.PI;const mk=new THREE.Mesh(new THREE.OctahedronGeometry(.1),sm('#e0a93b',.3));mk.position.y=1.85;g.add(mk);c.marker=mk;sfx(880,.08)};group.add(g);custs.push(c);state.customers++;state.awareness=Math.min(100,state.awareness+.1)}
+function custUpdate(c,dt){const g=c.g,u=g.userData,mv=step(g,dt);animPerson(g,dt,mv);
+ if(c.marker){c.marker.position.y=1.85+Math.sin(u.ph*3)*.06;c.marker.rotation.y+=dt*2}
+ if(c.state==='wait'){if(!state.open)return leave(c,'closed');c.patience-=dt;c.marker.scale.setScalar(c.patience<15?1.3:1);if(c.patience<=0)leave(c,'impatient')}
+ if(c.pending&&c.state==='seated'||c.pending&&c.state==='toseat'){c.wait2-=dt;if(c.wait2<=0)leave(c,'slow')}
+ if(c.sip>0){c.sip-=dt;if(c.sip<=0)leave(c,'done')}}
+function leave(c,why){if(c.gone)return;c.gone=true;c.state='leaving';const u=c.g.userData;
+ if(why==='impatient'||why==='slow'){state.walked++;state.satisfaction=Math.max(25,state.satisfaction-(why==='slow'?2.5:2));state.reputation=Math.max(0,state.reputation-.1);log(`${esc(c.prof.name)} left, tired of waiting.`)}else if(why==='rejected'||why==='declined'){state.walked++;if(why==='rejected'){state.satisfaction=Math.max(25,state.satisfaction-1.5);state.reputation=Math.max(0,state.reputation-.05)}log(`${esc(c.prof.name)} left without ordering.`)}
+ if(c.order){const i=queue.indexOf(c.order);if(i>=0)queue.splice(i,1)}c.pending=false;const from=c.spot?[{x:4.65,z:-1.35}]:[];c.spot&&(c.spot.used=false);c.seat&&(c.seat.used=false);c.spot=c.seat=null;
+ if(c.marker){disposeObj(c.marker);c.marker=null}if(c.cup){disposeObj(c.cup);c.cup=null}u.sit=false;u.act=null;u.face=null;u.path=[...from,{x:4.65,z:1.9},{x:4.5,z:3.9},{x:4.5,z:6.6}];u.onArrive=()=>{disposeObj(c.g);custs.splice(custs.indexOf(c),1)};updateUI()}
+function accept(c,id,price,addon){const d=RECIPES[id];let cg=cost(d.r);for(const[k,q]of Object.entries(d.r)){state.stock[k]=Math.max(0,state.stock[k]-q);state.used[k]=(state.used[k]||0)+q}if(addon){state.stock.sugar=Math.max(0,state.stock.sugar-.02);cg+=ING.sugar[2]*.02;state.used.sugar=(state.used.sugar||0)+.02}state.cogs+=cg;
+ const o={id:++oid,drink:id,price,c,cogs:cg,age:0,state:'queued'};c.order=o;c.pending=true;c.wait2=95;queue.push(o);log(`<b>${esc(c.prof.name)}</b> ordered ${esc(d.n)} (${money(price)}). Barista notified.`);
+ c.spot.used=false;c.spot=null;const seat=SEATS.find(s=>!s.used)||SEATS[0];seat.used=true;c.seat=seat;c.state='toseat';const u=c.g.userData;u.face=null;u.path=[{x:seat.x,z:seat.z}];
+ u.onArrive=()=>{if(c.gone)return;u.sit=true;u.face=Math.atan2(seat.tx-seat.x,seat.tz-seat.z);c.state='seated';if(c.marker){disposeObj(c.marker);c.marker=null}if(c.served)startSip(c)}}
+// ================= DIALOGUE / PERSUASION =================
+const TASTE={sweet:'sweet, dessert-like drinks',strong:'strong, bold coffee',light:'light and refreshing drinks'};
+const fit=(dk,pf)=>clamp(.3+(dk.cat===pf.cat?.25:0)+(pf.temp===null||dk.cold===(pf.temp==='cold')?.15:0)+(pf.taste==='sweet'?.3*dk.sweet:pf.taste==='strong'?.3*dk.strong:.3*(1-dk.strong)),0,1);
+const promoPrice=id=>Math.round(mn(id).price*.9/500)*500;
+function chance(){const pf=D.c.prof,dk=RECIPES[D.drink],f=fit(dk,pf),over=D.price/pf.budget;let p=.12+f*.62-(over>1?(over-1)*(.9+pf.sens):0)-pf.sens*Math.max(0,D.price/dk.base-1)*.5;
+ p+={personal:D.known.taste?.12:-.02,upsell:.06*(pf.loy+pf.cur)-.12*pf.sens,cheap:.08+.15*pf.sens,newp:.2*pf.cur-.04,comp:.05-.08*pf.sens}[D.approach];
+ p+=(D.mood-50)/220+pf.loy*.1+(state.reputation-50)/350+dk.pop*.06+(D.pitch&&D.pitch.id===D.drink?D.pitch.bonus:0)+(D.discounted?.15:0);return{p:clamp(p,.03,.95),f,over}}
+function say(l,m=0){D.line=l;D.mood=clamp(D.mood+m,0,100);D.c.g.userData.talk=1.8;renderDlg()}
+function openDlg(c){if(!availList().length)return toast('Nothing available to sell. Restock or enable menu items.');if(state.promo&&!avail(state.promo))pickPromo();c.state='talk';c.g.userData.talk=1.8;const m=c.prof.mood;
+ D={c,stage:'q',known:{},done:{},mood:m,pitch:null,approach:'personal',hes:false,line:m>60?pick(["Hi! I'm thinking of getting something, but I'm not sure what.","Hello! It smells amazing in here. What do you recommend?"]):m<40?pick(["Hi. Make it quick, please.","Hmm. I don't know what I want."]):"Hi! I'm thinking of getting something, but I'm not sure what."};renderDlg()}
+function closeDlg(back){if(D&&back&&D.stage!=='end')D.c.state='wait';D=null;renderDlg()}
+function dlist(){const av=availList().filter(id=>mn(id).on),s=[...av].sort((a,b)=>mn(a).price-mn(b).price),fr=av.filter(id=>state.fresh.includes(id));return(D.approach==='cheap'?s.slice(0,5):D.approach==='upsell'?s.slice(Math.floor(s.length/2)):D.approach==='newp'&&fr.length?fr:av).slice(0,9)}
+function dlgPick(o){if(!D)return;const[a,b]=o.split(':'),c=D.c,p=c.prof,k=D.known;
+ if(a==='x')return closeDlg(true);
+ if(a==='q'){c.patience-=6;if(Object.keys(D.done).length>=3)D.mood-=3;D.done[b]=1;
+  if(b==='taste'){k.taste=1;say(`I usually go for ${TASTE[p.taste]}.${p.temp?' Preferably '+p.temp+'.':''}`,3)}
+  else if(b==='budget'){k.budget=1;p.sens>.7?say(`Hmm… I'd like to stay around ${money(p.budget)}. Prices matter to me.`,-3):say(`Around ${money(p.budget)} is fine for me.`,1)}
+  else if(b==='sig'){const id=[...availList()].sort((x,y)=>margin(y)-margin(x))[0];D.pitch={id,bonus:.08};fit(RECIPES[id],p)>.6?say(`Ooh, the ${RECIPES[id].n} sounds good!`,5):say(`The ${RECIPES[id].n}? Hmm, not sure it's for me.`,-1)}
+  else if(b==='promo'){const id=state.promo;D.pitch={id,bonus:.04,disc:1};p.sens>.45?say(`A deal on ${RECIPES[id].n}? Nice, I like that.`,6):say(`Okay, a discount on ${RECIPES[id].n}. I'll consider it.`,2)}
+  else{const id=[...availList()].sort((x,y)=>RECIPES[y].pop-RECIPES[x].pop)[0];D.pitch={id,bonus:.06};fit(RECIPES[id],p)>.55?say("Popular means good, right? I'm curious.",3):say("Popular isn't always my thing…",0)}return}
+ if(a==='go')return(D.stage='a',say('So… what would you suggest?'));
+ if(a==='a'){D.approach=b;D.stage='d';return say({personal:'Okay, what did you have in mind?',upsell:'Something premium? Let me see.',cheap:'Something easy on the wallet, please.',newp:"Something new? I'm listening.",comp:'Sure, show me the drinks.'}[b])}
+ if(a==='d'){D.drink=b;D.price=(D.pitch&&D.pitch.disc&&D.pitch.id===b?promoPrice(b):mn(b).price)+(D.approach==='comp'?6000:0);return resolve()}
+ if(a==='h'){if(b==='disc'){D.price=Math.round(D.price*.9/500)*500;D.discounted=1;D.mood+=5;return resolve()}if(b==='cheap'){D.approach='cheap';D.stage='d';return say('Hmm, what else do you have?')}leave(c,'declined');closeDlg();return}}
+function resolve(){const{p,f,over}=chance(),c=D.c,u=c.g.userData,r=Math.random(),why=over>1.1?'price':f<.55?'taste':D.mood<35?'mood':'x',dd=D;
+ const L={yes:["Okay, that sounds perfect. I'll take it!","Sure, let's go with that.","Alright, you've convinced me!"],hes:{price:["Hmm… that's a bit pricey for me.","I like it, but the price is a little high."],taste:["I'm not sure it's really my taste…"],mood:["I'm not really in the mood to decide…"],x:["Hmm, let me think about it…"]},no:{price:["Sorry, that's out of my budget.","Too expensive for me, thanks."],taste:["Not what I'm looking for. Maybe next time."],mood:["Never mind, I'll go somewhere else."],x:["I'll pass, thanks."]}};
+ if(r<p){accept(c,D.drink,D.price,D.approach==='comp');state.satisfaction=Math.min(98,state.satisfaction+.4);u.nod=1.2;sfx(780,.1);D.stage='end';say(pick(L.yes),8);setTimeout(()=>{if(D===dd)closeDlg()},1600)}
+ else if(!D.hes){D.hes=true;D.stage='h';u.shake=.5;say(pick(L.hes[why]),-4)}
+ else{leave(c,'rejected');u.shake=1;D.stage='end';say(pick(L.no[why]),-10);setTimeout(()=>{if(D===dd)closeDlg()},1800)}}
+function renderDlg(){const el=$('dlg');el.style.display='none';return;const{c,known:k}=D,p=c.prof,face=D.mood>=65?'😊':D.mood>=40?'🙂':D.mood>=25?'😐':'😠',B=(id,l,sub='',dis=false)=>`<button data-opt="${id}" ${dis?'disabled':''}>${l}${sub?`<small>${sub}</small>`:''}</button>`;let o='';
+ const av=availList(),sig=[...av].sort((x,y)=>margin(y)-margin(x))[0],pop=[...av].sort((x,y)=>RECIPES[y].pop-RECIPES[x].pop)[0],pr=state.promo&&avail(state.promo)?state.promo:null;
+ if(D.stage==='q')o=[!D.done.taste&&B('q:taste','Ask about their taste'),!D.done.budget&&B('q:budget','Ask about their budget'),!D.done.sig&&B('q:sig','Introduce signature drinks',(RECIPES[sig]||{}).n),pr&&!D.done.promo&&B('q:promo',"Recommend today's promotion",RECIPES[pr].n+' · '+money(promoPrice(pr))),!D.done.pop&&B('q:pop','Offer a popular product',(RECIPES[pop]||{}).n),B('go:a','→ Make a recommendation')].filter(Boolean).join('');
+ else if(D.stage==='a')o=B('a:personal','Recommend a personalized drink','Works best if you asked about taste')+B('a:upsell','Upsell a premium product','Higher price, riskier')+B('a:cheap','Offer a cheaper alternative','Safer for price-sensitive guests')+B('a:newp','Promote a new product','Curious guests like novelty')+B('a:comp','Suggest a sweet add-on (+Rp 6.000)','Extra margin',state.stock.sugar<.02);
+ else if(D.stage==='d'){o=dlist().map(id=>{const pp=(D.pitch&&D.pitch.disc&&D.pitch.id===id?promoPrice(id):mn(id).price)+(D.approach==='comp'?6000:0),f=fit(RECIPES[id],p);return B('d:'+id,esc(RECIPES[id].n)+(state.fresh.includes(id)?' ★':''),money(pp)+(k.taste?(f>.7?' · ✓ good match':f<.5?' · ✗ poor match':''):''))}).join('')}
+ else if(D.stage==='h')o=B('h:disc','Offer 10% off','Lower price, lower margin')+B('h:cheap','Suggest something cheaper')+B('h:bye','Let them go');
+ el.style.display='block';el.innerHTML=`<div class="who"><span>${esc(p.name)}</span><button data-opt="x" style="padding:2px 8px">✕</button></div><div class="chips"><span>${face} Mood ${Math.round(D.mood)}</span><span>${k.taste?'Likes '+p.taste+(p.temp?' · '+p.temp:''):'Taste ?'}</span><span>${k.budget?'Budget ≈ '+money(p.budget):'Budget ?'}</span></div><div class="say">“${esc(D.line)}”</div><div class="opts">${o}</div>`}
+
+// ================= TABLET POS + HANDS-ON DRINK MAKING =================
+let POS={customer:null,drink:null,method:null,stage:'customer',processing:false};
+function openPOS(customer=null){POS={customer,drink:null,method:null,stage:customer?'menu':'customer',processing:false};setCameraMode('checkout');renderPOS();$('bigBg').classList.add('show')}
+function posShell(body,step){
+ $('bigModal').innerHTML=`<div class="pos-device"><div class="pos-top"><span class="pos-camera"></span><span>VENTURE · POINT OF SALE</span><span class="pos-status">● CONNECTED</span></div><div class="pos-screen"><div class="pos-heading"><div><small>CHECKOUT TERMINAL · ${step}</small><h2>📟 Store checkout</h2><p>Cashier station · Customer-facing payment</p></div><button data-close aria-label="Close">✕</button></div>${body}</div><div class="pos-home"></div></div>`;
+}
+function renderPOS(){
+ const waiting=custs.filter(c=>c.state==='wait'&&!c.gone);
+ const customers=waiting.map(c=>`<button class="pos-choice ${POS.customer===c?'selected':''}" data-poscust="${custs.indexOf(c)}"><span class="pos-avatar">👤</span><span><b>${esc(c.prof.name)}</b><small>Wants to order · ${esc(c.prof.taste||'Customer')}</small></span><strong>›</strong></button>`).join('');
+ const drinks=Object.keys(RECIPES).filter(id=>avail(id)).map(id=>`<button class="pos-menu-item ${POS.drink===id?'selected':''}" data-posdrink="${id}"><span class="pos-drink-icon">${RECIPES[id].cat==='juice'?'🧃':RECIPES[id].cat==='manual'?'☕':RECIPES[id].cat==='matcha'?'🍵':'🥛'}</span><span><b>${esc(RECIPES[id].n)}</b><small>${CAT[RECIPES[id].cat]}</small></span><strong>${money(mn(id).price)}</strong></button>`).join('');
+ let body='';
+ if(!POS.customer)body=`<div class="pos-section"><h3>Waiting customers</h3><p class="pos-help">Select the customer standing at the counter.</p><div class="pos-list">${customers||'<p class="pos-empty">No customers waiting at the counter.</p>'}</div></div>`;
+ else if(!POS.drink)body=`<div class="pos-customer"><span class="pos-avatar">👤</span><span><small>TAKING ORDER FOR</small><b>${esc(POS.customer.prof.name)}</b></span><button data-posback>Change</button></div><div class="pos-section"><h3>What would you like today?</h3><p class="pos-help">Choose the item requested by the customer.</p><div class="pos-menu">${drinks||'<p class="pos-empty">No available menu items. Restock ingredients.</p>'}</div></div>`;
+ else if(POS.stage==='confirm')body=`<div class="pos-customer"><span class="pos-avatar">👤</span><span><small>ORDER FROM</small><b>${esc(POS.customer.prof.name)}</b></span></div><div class="pos-ticket"><small>ORDER SUMMARY</small><div class="pos-ticket-line"><b>${esc(RECIPES[POS.drink].n)}</b><strong>${money(mn(POS.drink).price)}</strong></div><div class="pos-ticket-total"><span>TOTAL</span><b>${money(mn(POS.drink).price)}</b></div></div><p class="pos-help">Confirm the customer's requested item on the tablet. The customer will choose their payment method next.</p><button class="pos-primary" data-takeorder>✓ TAKE ORDER</button><button class="pos-secondary" data-posback>← Change item</button>`;
+ else if(POS.stage==='method')body=`<div class="pos-customer"><span class="pos-avatar">👤</span><span><small>ORDER ACCEPTED</small><b>${esc(POS.customer.prof.name)}</b></span><span class="pos-tag">Order taken</span></div><div class="pos-ticket"><small>ORDER</small><div class="pos-ticket-line"><b>${esc(RECIPES[POS.drink].n)}</b><strong>${money(mn(POS.drink).price)}</strong></div><div class="pos-ticket-total"><span>AMOUNT DUE</span><b>${money(mn(POS.drink).price)}</b></div></div><div class="pos-section"><h3>Customer chooses payment</h3><p class="pos-help">Let the customer select how they want to pay.</p><div class="pos-paymethods"><button data-customerpay="QRIS">▦<b>QRIS</b><small>Scan from phone</small></button><button data-customerpay="CARD">💳<b>Card</b><small>Swipe / insert card</small></button><button data-customerpay="CASH">💵<b>Cash</b><small>Pay at counter</small></button></div></div>`;
+ else body=paymentInteractionMarkup();
+ posShell(body,POS.stage==='customer'?'01 · CUSTOMER':POS.stage==='menu'?'02 · MENU':POS.stage==='confirm'?'03 · TAKE ORDER':POS.stage==='method'?'04 · PAYMENT METHOD':'05 · PAYMENT');
+}
+function paymentInteractionMarkup(){
+ const m=POS.method,price=money(mn(POS.drink).price);
+ if(m==='QRIS')return `<div class="pos-section"><h3>Customer pays with QRIS</h3><p class="pos-help">The customer holds their QR code up. As cashier, position the scanner and scan it.</p><div class="pay-visual scan pos-payment-scene"><div class="qr-phone">📱<small>CUSTOMER QR</small><div class="fake-qr">▦ ▦<br>▦ ▣ ▦<br>▦ ▦</div></div><div class="scanner">▤<small>SCANNER</small><i class="beam"></i></div></div><button class="pos-primary" data-scanqr>▦ SCAN CUSTOMER QR</button>`;
+ if(m==='CARD')return `<div class="pos-section"><h3>Customer pays by card</h3><p class="pos-help">Drag the customer's card through the card terminal slot.</p><div class="pay-visual pos-payment-scene"><div class="customer-card" id="swipeCard" draggable="false">💳<small>VENTURE BANK</small><b>••••  ••••  ••••  2048</b></div><div class="terminal-machine">▰<small>CARD READER</small><div class="terminal-slot"></div><span>← SWIPE HERE</span></div></div><div class="pos-swipe-track">DRAG CARD TO THE RIGHT →</div>`;
+ return `<div class="pos-section"><h3>Customer pays cash</h3><p class="pos-help">The customer hands over the cash. Click to receive and confirm it.</p><div class="pay-visual pos-payment-scene"><span style="font-size:52px">🙋</span><span style="font-size:48px">💵</span><span style="font-size:48px">🧾</span></div><button class="pos-primary" data-cashreceive>✓ RECEIVE CASH</button>`;
+}
+function completePOSPayment(){
+ const c=POS.customer,id=POS.drink,method=POS.method;if(!c||c.gone||c.state!=='wait')return toast('Customer is no longer waiting.');
+ const price=mn(id).price;accept(c,id,price,false);c.order.payment=method;
+ const labels={QRIS:'QRIS scanned successfully ✓',CARD:'Card transaction approved ✓',CASH:'Cash received ✓'};
+ POS.stage='success';posShell(`<div class="pos-success"><div class="success-check">✓</div><h2>Payment approved</h2><p>${labels[method]}</p><div class="pos-ticket-total"><span>PAID</span><b>${money(price)}</b></div><button class="pos-primary" data-posdone>NEXT CUSTOMER</button></div>`,'06 · COMPLETE');
+ sfx(method==='QRIS'?880:method==='CARD'?740:620,.22,'triangle');log(`${method} payment received for ${RECIPES[id].n}.`);updateUI();save();
+}
+function placePOSOrder(method){POS.method=method;POS.stage='interaction';renderPOS()}
+const prepSteps=id=>{
+ const d=RECIPES[id],r=d.r,steps=[];
+ if(d.cat==='juice'){if(r.orange)steps.push('Wash and cut fresh oranges');if(r.mango)steps.push('Peel and cube ripe mango');if(r.banana)steps.push('Slice banana and prepare milk');if(r.strawberry)steps.push('Wash and hull strawberries');steps.push('Add ingredients and ice to blender','Blend until smooth','Pour juice into cup and add garnish');return steps}
+ if(id.includes('matcha'))return ['Scoop matcha powder into bowl','Add a little warm water','Whisk matcha until smooth and foamy','Steam or pour milk','Pour milk and create latte art'];
+ if(d.cat==='manual')return ['Grind coffee beans to the correct grind size','Rinse paper filter and warm dripper','Add ground coffee and bloom with hot water','Pour water slowly in circular motions','Let coffee drip and serve over cup'];
+ if(d.cat==='espresso')return ['Grind fresh coffee beans','Dose grounds into portafilter','Distribute and tamp the coffee','Lock portafilter into espresso machine','Extract espresso shot','Steam milk and pour latte art'];
+ return ['Prepare ingredients','Mix drink base','Add ice or hot water','Pour into cup and serve'];
+};
+let manualOrder=null,manualStep=0,cashierT=0;
+function startManual(){if(!queue.length)return toast('No orders waiting to be made.');manualOrder=queue[0];manualStep=0;setCameraMode('barista');actionHands.visible=true;renderManual()}
+function renderManual(){
+ if(!manualOrder)return;const o=manualOrder,id=o.drink,steps=prepSteps(id);
+ $('bigModal').innerHTML=`<div class="mh"><div><h2>🧑‍🍳 BARISTA WORKSTATION</h2><p>${esc(RECIPES[id].n)} · Order #${o.id} · Action ${manualStep+1}/${steps.length}</p></div><button data-close>✕</button></div><div class="action-prompt"><b>${esc(steps[manualStep])}</b><small>Watch the barista station, then perform the action below. Tools and ingredients animate in the 3D scene.</small></div><div class="bar"><i style="width:${manualStep/steps.length*100}%"></i></div><div class="opts"><button class="primary" data-prepnext>▶ Perform action · ${manualStep===steps.length-1?'Finish drink':'Next action'}</button><button data-camreset>↩ Overview</button></div>`;
+ $('bigBg').classList.add('show');
+}
+function autoCashier(dt){if(!state.open||!state.cashiers||state.cashierBreak)return;cashierT-=dt;if(cashierT>0)return;cashierT=2.2;const c=custs.find(x=>x.state==='wait'&&!x.gone);if(!c)return;const choices=availList().filter(id=>RECIPES[id].cat===c.prof.cat||RECIPES[id].cat==='juice');const affordable=choices.filter(id=>mn(id).price<=c.prof.budget);const id=pick(affordable.length?affordable:availList());if(!id)return;const method=pick(['QRIS','CARD','CASH']);accept(c,id,mn(id).price,false);c.order.payment=method;log(`Cashier processed ${c.prof.name} · ${method}.`);sfx(720,.07,'triangle')}
+function animatePrepAction(step,id){
+ const a=step.toLowerCase(),rig=actionHands.userData.rig;
+ actionHands.visible=true;actionHands.userData.active=true;actionHands.userData.action=a;actionHands.userData.started=performance.now();actionHands.userData.duration=1750;
+ // Tool-specific reach and grip choreography. Elbows bend independently; wrists and fingers articulate.
+ let pose='reach';
+ if(a.includes('grind'))pose='grind';else if(a.includes('dose')||a.includes('scoop')||a.includes('add'))pose='scoop';
+ else if(a.includes('tamp')||a.includes('distribute'))pose='tamp';else if(a.includes('lock'))pose='lock';
+ else if(a.includes('extract')||a.includes('drip'))pose='watch';else if(a.includes('steam')||a.includes('whisk'))pose='stir';
+ else if(a.includes('pour')||a.includes('milk')||a.includes('water'))pose='pour';
+ else if(a.includes('blend'))pose='blend';else if(a.includes('cut')||a.includes('slice')||a.includes('wash')||a.includes('rinse'))pose='prep';
+ actionHands.userData.pose=pose;
+ if(a.includes('grind'))grinderHandle.userData.motion='spin';
+ if(a.includes('whisk'))pitcher.userData.motion='whisk';
+ if(a.includes('blend'))blenderJar.userData.motion='blend';
+ if(a.includes('pour')||a.includes('milk'))pitcher.userData.motion='pour';
+ clearTimeout(actionHands.userData.stopTimer);
+ actionHands.userData.stopTimer=setTimeout(()=>{actionHands.userData.active=false;grinderHandle.userData.motion='';pitcher.userData.motion='';blenderJar.userData.motion=''},1800);
+}
+function doPrepStep(){if(!manualOrder)return;const steps=prepSteps(manualOrder.drink);animatePrepAction(steps[manualStep],manualOrder.drink);manualStep++;sfx(520+manualStep*55,.1,'triangle');if(manualStep>=steps.length){const o=manualOrder;const i=queue.indexOf(o);if(i>=0)queue.splice(i,1);finish(o);manualOrder=null;actionHands.visible=false;setCameraMode('overview');toast('Drink completed and served!');$('bigModal').innerHTML=`<div class="say payment-pop" style="text-align:center;padding:35px;font-size:22px">☕✨<br><b>${esc(RECIPES[o.drink].n)} ready!</b></div><button data-close class="primary" style="width:100%">DONE</button>`}else renderManual()}
+function rStaff(){
+ const b=baristas.map((b,i)=>`<div class="modalrow"><span>Barista ${i+1} ${b.break?'· ON BREAK':'· Working'}</span><button data-breakbar="${i}">${b.break?'Return to work':'Send on break'}</button></div>`).join('')||'<p>No baristas hired. You make drinks yourself.</p>';
+ $('bigModal').innerHTML=`<div class="mh"><div><h2>Staff management</h2><p>Hire employees to automate the shop. Staff on break do not work.</p></div><button data-close>✕</button></div><h3>Baristas</h3>${b}<div class="modalrow"><span>Cashier ${state.cashierBreak?'· ON BREAK':state.cashiers?'· Working':'· Not hired'}</span>${state.cashiers?`<button data-cashbreak>${state.cashierBreak?'Return to work':'Send on break'}</button>`:'<span>Not hired</span>'}</div><p><b>Team:</b> ${state.cashiers} cashier(s), ${baristas.length} barista(s)</p>`;
+}
+// ================= GAME FLOW =================
+function endDay(){const rev=state.revenue,exp=state.expenses,net=rev-state.cogs-exp,ps=Object.entries(state.pstat).sort((a,b)=>b[1].p-a[1].p),best=ps[0],worst=ps[ps.length-1],nm=x=>(RECIPES[x[0]]||{n:x[0]}).n;
+ state.cash+=rev-exp;state.reputation=clamp(state.reputation+(state.satisfaction-65)*.06,0,100);const rows=[['Orders served',state.orders],['Revenue',money(rev)],['Ingredients used (COGS)',money(state.cogs)],['Rent + wages',money(exp)],['Net result',money(net)],['Ingredients purchased (cash out)',money(state.spent)],['Customers lost',state.walked],['Best product (profit)',best?nm(best)+' · '+money(best[1].p):'—'],['Weakest product',worst&&worst!==best?nm(worst)+' · '+money(worst[1].p):'—']];
+ $('modalTitle').textContent='Day '+state.day+' · Business report';$('modalDesc').textContent=net>=0?'Your store finished the day in the black.':'Your store operated at a loss. Adjust pricing, menu mix or costs.';$('modalRows').innerHTML=rows.map(r=>`<div class="modalrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');$('modalBg').classList.add('show');
+ state.day++;state.revenue=0;state.profit=0;state.orders=0;state.customers=0;state.walked=0;state.time=8;state.cogs=0;state.spent=0;state.used={};state.pstat={};state.satisfaction=clamp(state.satisfaction,40,95);pickPromo();log('New day. Check stock and prices before opening.');updateUI();save(true)}
+$('openBtn').onclick=()=>{state.open=!state.open;if(state.open)spawnT=Math.min(spawnT,2);log(state.open?'Doors opened. Use the POS tablet or let your cashier take orders.':'Store closed. Waiting customers leave.');toast(state.open?'Business is now open':'Business closed');updateUI();save()};
+$('marketingBtn').onclick=()=>{if(!afford(250000))return;state.awareness=Math.min(100,state.awareness+13);state.reputation=Math.min(100,state.reputation+2);log('Local campaign launched. Brand awareness increased.');updateUI();save()};
+$('hireBtn').onclick=()=>{if(state.staff>=4)return toast('Team is full (max 4 baristas)');if(!afford(1200000))return;state.staff++;state.expenses+=90000;syncBar();log('A barista joined the team. They now prepare drinks automatically.');toast('Barista hired');updateUI();save()};
+$('cashierBtn').onclick=()=>{if(state.cashiers>=2)return toast('You have enough cashiers');if(!afford(900000))return;state.cashiers++;state.expenses+=80000;log('A cashier joined the team. Orders and payments are now handled automatically.');toast('Cashier hired');updateUI();save()};
+$('staffBtn').onclick=()=>showPanel('staff');$('makeBtn').onclick=startManual;$('posBtn').onclick=openPOS;
+$('upgradeBtn').onclick=()=>{if(state.machine>=3)return toast('Machine is already at max level');if(!afford(1800000))return;state.machine++;log('Espresso machine upgraded to level '+state.machine+'. Drinks are made faster.');toast('Machine upgraded');updateUI();save()};
+$('endDayBtn').onclick=()=>{if(state.open)return toast('Close the business before ending the day');if(custs.some(c=>c.state!=='leaving'))return toast('Wait for customers to finish and leave');endDay()};
+$('modalClose').onclick=$('modalConfirm').onclick=()=>$('modalBg').classList.remove('show');
+$('rotateBtn').onclick=()=>{camera.position.applyAxisAngle(new THREE.Vector3(0,1,0),Math.PI/4);controls.update()};
+const camReset=()=>{setCameraMode('overview')};$('resetCam').onclick=camReset;
+let cardDrag=null;
+document.addEventListener('pointerdown',e=>{if(e.target.id==='swipeCard'){cardDrag={x:e.clientX,y:e.clientY,el:e.target};e.target.setPointerCapture?.(e.pointerId);e.target.classList.add('dragging')}});
+document.addEventListener('pointerup',e=>{if(!cardDrag)return;const dx=e.clientX-cardDrag.x;cardDrag.el.classList.remove('dragging');cardDrag=null;if(dx>95&&POS.stage==='interaction'&&POS.method==='CARD'){toast('Card read successfully');setTimeout(completePOSPayment,450)}else if(POS.stage==='interaction'&&POS.method==='CARD')toast('Swipe farther to the right through the reader.')});
+document.addEventListener('click',e=>{if(e.target.id==='bigBg'){$('bigBg').classList.remove('show');panel=null;return}const t=e.target.closest('button');if(!t)return;const d=t.dataset;
+ if(d.panel)showPanel(d.panel);else if('close'in d){$('bigBg').classList.remove('show');panel=null;if(!manualOrder)setCameraMode('overview')}else if(d.buy){const[k,n]=d.buy.split(':');buy(k,+n)}else if(d.unlock)unlockDrink(d.unlock);else if(d.tog)togDrink(d.tog);else if(d.del)delDrink(d.del);else if('newc'in d)rCustom('espresso');else if('savec'in d)saveCustom();else if(d.opt)dlgPick(d.opt);else if(d.poscust!==undefined){POS.customer=custs[+d.poscust];POS.stage='menu';renderPOS()}else if(d.posdrink){POS.drink=d.posdrink;POS.stage='confirm';renderPOS()}else if('posback'in d){if(POS.stage==='confirm'){POS.drink=null;POS.stage='menu'}else{POS.customer=null;POS.drink=null;POS.stage='customer'}renderPOS()}else if('takeorder'in d){POS.stage='method';renderPOS()}else if(d.customerpay){POS.method=d.customerpay;POS.stage='interaction';renderPOS()}else if('scanqr'in d){const b=t;b.textContent='SCANNING…';b.disabled=true;setTimeout(completePOSPayment,1300)}else if('cashreceive'in d){t.textContent='RECEIVING…';setTimeout(completePOSPayment,650)}else if('posdone'in d)openPOS();else if('prepnext'in d)doPrepStep();else if(d.breakbar!=null){const b=baristas[+d.breakbar];if(b){b.break=!b.break;log(`Barista ${+d.breakbar+1} ${b.break?'started a break':'returned to work'}.`);rStaff();updateUI()}}else if('cashbreak'in d){state.cashierBreak=!state.cashierBreak;log(state.cashierBreak?'Cashier started a break.':'Cashier returned to work.');rStaff();save()}else if('camreset'in d)camReset();else if('savenow'in d){save(true);toast('Game saved')}});
+document.addEventListener('change',e=>{const t=e.target,d=t.dataset;if(d.price){mn(d.price).price=Math.max(1000,Math.round(+t.value)||RECIPES[d.price].base);updateUI();save();rStudio()}else if('cfb'in d)rCustom(t.value)});
+document.addEventListener('input',e=>{const t=e.target,d=t.dataset;if('cf'in d)cfUpdate();if(d.s){const v=t.type==='checkbox'?t.checked:+t.value;S[d.s]=v;const l=$('v_'+d.s);if(l)l.textContent=v;applySettings();saveS();if(d.s==='auto'||d.s==='autoSec')setAuto();if(d.s==='aa')toast('Antialiasing applies after reload')}});
+// ================= CLICKING CUSTOMERS =================
+const ray=new THREE.Raycaster(),mp=new THREE.Vector2();let down=null;const cv=renderer.domElement;
+cv.addEventListener('pointerdown',e=>down=[e.clientX,e.clientY]);
+cv.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>6)return;const r=cv.getBoundingClientRect();mp.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(mp,camera);if(cameraMode==='overview'){const stationHit=ray.intersectObject(stationHotspot,true)[0];if(stationHit){startManual();return}}const hit=ray.intersectObjects(custs.map(c=>c.g),true)[0];if(!hit)return;let o=hit.object;while(o&&!o.userData.cust)o=o.parent;const c=o&&o.userData.cust;if(!c)return;if(c.state==='wait'){openPOS(c)}else toast(c.prof.name+(c.state==='enter'?' is walking in…':' already placed an order.'))});
+// ================= LOOP =================
+const clock=new THREE.Clock();
+function resize(){const w=host.clientWidth,h=host.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
+new ResizeObserver(resize).observe(host);
+function animate(){requestAnimationFrame(animate);const rd=Math.min(clock.getDelta(),.05),dt=rd*S.speed;if(camTween){camTween.t=Math.min(1,camTween.t+rd*1.8);const k=camTween.t<.5?2*camTween.t*camTween.t:1-Math.pow(-2*camTween.t+2,2)/2;camera.position.lerpVectors(camTween.fromP,camTween.toP,k);controls.target.lerpVectors(camTween.fromT,camTween.toT,k);if(camTween.t>=1)camTween=null}if(grinderHandle.userData.motion)grinderHandle.rotation.y+=rd*13;if(pitcher.userData.motion==='whisk')pitcher.rotation.y+=rd*12;if(pitcher.userData.motion==='pour')pitcher.rotation.z=-.7+Math.sin(performance.now()*.012)*.08;if(blenderJar.userData.motion==='blend')blenderJar.rotation.y+=rd*15;if(actionHands.userData.active){
+ const elapsed=(performance.now()-(actionHands.userData.started||0))/1000,phase=elapsed*5.2,pose=actionHands.userData.pose||'reach',rig=actionHands.userData.rig;
+ const poses={reach:[-.62,.25,-.18,.18],grind:[-.92,.48,-.7,.35],scoop:[-.72,.32,-.35,.2],tamp:[-.45,.75,-.45,.72],lock:[-.95,.65,-.82,.5],watch:[-.25,.18,-.2,.12],stir:[-.85,.65,-.95,.72],pour:[-.55,.45,-.82,.6],blend:[-.4,.25,-.6,.3],prep:[-.8,.42,-.72,.4]};
+ const v=poses[pose]||poses.reach,wave=Math.sin(phase)*.12;
+ rig.forEach((r,i)=>{const k=i*2;r.shoulder.rotation.x=v[k]+wave;r.shoulder.rotation.z=(i===0?-.22:.22)+(i===0?-.1:.1)*Math.sin(phase*.7);r.elbow.rotation.x=(pose==='tamp'?.95:pose==='lock'?.85:pose==='stir'?.72:.48)+Math.sin(phase*1.4+i)*.12;r.wrist.rotation.x=(pose==='pour'?.6:pose==='tamp'?-.35:.12)+Math.sin(phase*1.8+i)*.1;r.palm.rotation.x=pose==='pour'?.35:0;r.fingers.forEach((f,j)=>{f.rotation.x=(pose==='reach'?.05:.5)+Math.sin(phase+j*.4)*.07});r.thumb.rotation.x=.25+Math.sin(phase)*.05});
+ actionHands.position.y=1.02+Math.sin(phase*1.2)*.018;
+}else{actionHands.position.y=1.02;const rig=actionHands.userData.rig;if(rig)rig.forEach(r=>{r.shoulder.rotation.set(0,0,0);r.elbow.rotation.set(0,0,0);r.wrist.rotation.set(0,0,0);r.palm.rotation.set(0,0,0);r.fingers.forEach(f=>f.rotation.set(0,0,0))})}
+controls.update();
+ if(state.open){state.time+=dt*.16;spawnT-=dt;if(spawnT<=0){spawnT=Math.max(6,16-state.awareness*.08)+rnd(0,3);spawnCust()}}
+ queue.forEach(o=>o.age+=dt);[...custs].forEach(c=>custUpdate(c,dt));autoCashier(dt);baristas.forEach(b=>barUpdate(b,dt));
+ uiT-=rd;if(uiT<=0){uiT=.5;updateUI()}renderer.render(scene,camera)}
+syncBar();if(!state.promo||!avail(state.promo))pickPromo();applySettings();setAuto();animate();updateUI();
+window.addEventListener('beforeunload',()=>save());
+</script>
+</body>
+</html>
